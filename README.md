@@ -1,4 +1,5 @@
 [![Build Status](https://semaphoreci.com/api/v1/bentranter/passlock/branches/master/badge.svg)](https://semaphoreci.com/bentranter/passlock)
+[![GoDoc](https://godoc.org/github.com/bentranter/passlock?status.svg)](https://godoc.org/github.com/bentranter/passlock)
 
 Passlock
 ---
