@@ -1,3 +1,5 @@
+[![Build Status](https://semaphoreci.com/api/v1/bentranter/passlock/branches/master/badge.svg)](https://semaphoreci.com/bentranter/passlock)
+
 Passlock
 ---
 
