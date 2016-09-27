@@ -22,5 +22,23 @@ func main() {
 		return
 	}
 
+	// We're going to rotate keys -- let's start by making a new key
+	newKey := passlock.NewEncryptionKey()
+
+	// Rotate the keys
+	newEncryptedPassword, err := passlock.RotateKey(key, newKey, encryptedPassword)
+	if err != nil {
+		println(err)
+		return
+	}
+
+	// See if that password matches with the new key
+	err = passlock.CompareHashAndPassword(newEncryptedPassword, password, newKey)
+	if err != nil {
+		println(err)
+		return
+	}
+
 	println("Passwords matched!")
+	// Output: Passwords matched!
 }

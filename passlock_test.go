@@ -2,11 +2,53 @@ package passlock
 
 import (
 	"crypto/rand"
+	"fmt"
 	"io"
 	"strconv"
 	"strings"
 	"testing"
 )
+
+func Example() {
+	// Your plaintext password
+	password := []byte("password")
+
+	// Get a key
+	key := NewEncryptionKey()
+
+	// Store the password
+	encryptedPassword, err := GenerateFromPassword(password, DefaultCost, key)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Retrieve the password
+	err = CompareHashAndPassword(encryptedPassword, password, key)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// We're going to rotate keys -- let's start by making a new key
+	newKey := NewEncryptionKey()
+
+	// Rotate the keys
+	newEncryptedPassword, err := RotateKey(key, newKey, encryptedPassword)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// See if that password matches with the new key
+	err = CompareHashAndPassword(newEncryptedPassword, password, newKey)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Passwords matched!")
+	// Output: Passwords matched!
+}
 
 func TestNewEncryptionKey(t *testing.T) {
 	t.Parallel()
