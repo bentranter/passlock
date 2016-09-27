@@ -90,5 +90,30 @@ func TestGenerateFromPassword_NulByte(t *testing.T) {
 	}
 }
 
-// TODO bench against normal bcrypt
-// TODO sanity for encrypt/decrypt, password matching
+func TestRotateKey(t *testing.T) {
+	t.Parallel()
+
+	keyA := NewEncryptionKey()
+	keyB := NewEncryptionKey()
+	password := []byte("password")
+
+	encryptedPassword, err := GenerateFromPassword(password, DefaultCost, keyA)
+	if err != nil {
+		t.Fatalf("Unexpected error hashing password: %#v\n", err)
+	}
+
+	newEncryptedPassword, err := RotateKey(keyA, keyB, encryptedPassword)
+	if err != nil {
+		t.Fatalf("Unexpected error rotating key: %#v\n", err)
+	}
+
+	err = CompareHashAndPassword(newEncryptedPassword, password, keyB)
+	if err != nil {
+		t.Fatalf("Expected password to match but got %#v\n", err)
+	}
+
+	err = CompareHashAndPassword(newEncryptedPassword, password, keyA)
+	if err == nil {
+		t.Fatalf("Expected decryption to fail.\n")
+	}
+}

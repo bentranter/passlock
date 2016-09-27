@@ -57,6 +57,27 @@ func CompareHashAndPassword(encryptedPassword, password []byte, key *[32]byte) e
 	return bcrypt.CompareHashAndPassword(hashedPassword, encodedPassword)
 }
 
+// NewEncryptionKey generates a random 256-bit key for Encrypt() and
+// Decrypt(). It panics if the source of randomness fails.
+func NewEncryptionKey() *[32]byte {
+	key := [32]byte{}
+	_, err := io.ReadFull(rand.Reader, key[:])
+	if err != nil {
+		panic(err)
+	}
+	return &key
+}
+
+// RotateKey decrypts the given hash using the old key, and encrypts it with the
+// new one.
+func RotateKey(oldKey, newKey *[32]byte, encryptedPassword []byte) ([]byte, error) {
+	decryptedPassword, err := decrypt(encryptedPassword, oldKey)
+	if err != nil {
+		return nil, err
+	}
+	return encrypt(decryptedPassword, newKey)
+}
+
 // hashAndEncodePassword hashes a plaintext password using SHA384, and base64 encodes it.
 func hashAndEncodePassword(password []byte) ([]byte, error) {
 	hash := sha512.New512_256()
@@ -71,17 +92,6 @@ func hashAndEncodePassword(password []byte) ([]byte, error) {
 	base64.StdEncoding.Encode(encodedPassword, hashedPassword)
 
 	return encodedPassword, nil
-}
-
-// NewEncryptionKey generates a random 256-bit key for Encrypt() and
-// Decrypt(). It panics if the source of randomness fails.
-func NewEncryptionKey() *[32]byte {
-	key := [32]byte{}
-	_, err := io.ReadFull(rand.Reader, key[:])
-	if err != nil {
-		panic(err)
-	}
-	return &key
 }
 
 // encrypt encrypts data using 256-bit AES-GCM.  This both hides the content of
